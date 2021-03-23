@@ -61,18 +61,34 @@ public class CharacterSelectionUI : MonoBehaviour {
     }
 
     private void SelectCharacter() {
+        if(currentSelector == null) return;
+
         selectionIndication[currentSelector.Index].GetComponent<Image>().color = Color.gray;
         currentSelector.Selected = true;
+        charactersHolders[currentSelector.Index]
+            .GetChild(0).gameObject.GetComponent<Animator>().SetTrigger("selected");
 
-        currentSelector = player2;
-        selectionIndication[currentSelector.Index].gameObject.SetActive(true);
-
-        if(player1.Selected) currentSelector = player2;
-        if(player2.Selected) currentSelector = null;
+        if(currentSelector == player1) { 
+            charactersHolders[currentSelector.Index].Rotate(new Vector3(0, -60, 0));
+        }
+        if(currentSelector == player2) {
+            charactersHolders[currentSelector.Index].Rotate(new Vector3(0, 60, 0));
+        }
 
         if(player1.Selected && player2.Selected) {
-            Debug.Log("ambos");
+            charactersHolders[player1.Index]
+                .GetChild(0).gameObject.GetComponent<Animator>().SetTrigger("fightStart");
+            charactersHolders[player2.Index]
+                .GetChild(0).gameObject.GetComponent<Animator>().SetTrigger("fightStart");
+            return;
         }
+
+        if(currentSelector == player1) {
+            currentSelector = player2;
+            selectionIndication[currentSelector.Index].gameObject.SetActive(true);
+            ChangeCharacter(0);
+        }
+        else if(currentSelector == player2) currentSelector = null;
     }
 
 }
