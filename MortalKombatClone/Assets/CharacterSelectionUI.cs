@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CharacterSelectionUI : MonoBehaviour {
+public class CharacterSelectionUI : Singleton<CharacterSelectionUI> {
+
+    public EventHandler OnPlayersSelected;
 
     public class CharacterSelection {
         public int Index { get; private set; }
@@ -76,10 +78,7 @@ public class CharacterSelectionUI : MonoBehaviour {
         }
 
         if(player1.Selected && player2.Selected) {
-            charactersHolders[player1.Index]
-                .GetChild(0).gameObject.GetComponent<Animator>().SetTrigger("fightStart");
-            charactersHolders[player2.Index]
-                .GetChild(0).gameObject.GetComponent<Animator>().SetTrigger("fightStart");
+            StartCoroutine(FightStart());
             return;
         }
 
@@ -91,4 +90,14 @@ public class CharacterSelectionUI : MonoBehaviour {
         else if(currentSelector == player2) currentSelector = null;
     }
 
+    private IEnumerator FightStart() {
+        charactersHolders[player1.Index]
+            .GetChild(0).gameObject.GetComponent<Animator>().SetTrigger("fightStart");
+        charactersHolders[player2.Index]
+            .GetChild(0).gameObject.GetComponent<Animator>().SetTrigger("fightStart");
+
+        yield return new WaitForSeconds(1f);
+
+        OnPlayersSelected?.Invoke(this, EventArgs.Empty);
+    }
 }
